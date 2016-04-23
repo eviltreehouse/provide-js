@@ -1,8 +1,10 @@
-// [[ Provide.js ]] -- light-weight dependency injection for modular code bases.      @INFO
-// version 0.9.5																	  @INFO
-// Copyright (c) 2016 EvilTreeHouse.com												  @INFO
-// http://eviltreehouse.com / http://github.com/eviltreehouse / @eviltreehouse		  @INFO
-// This is free software. Use/modify to your heart's content :)						  @INFO
+/* @INFO
+// [[ Provide.js ]] -- light-weight dependency injection for modular code bases.
+// version 0.9.6
+// Copyright (c) 2016 EvilTreeHouse.com
+// http://eviltreehouse.com / http://github.com/eviltreehouse / @eviltreehouse
+// This is free software. Use/modify to your heart's content :)
+*/
 
 !function(_window, As) {
 	var readying = false;
@@ -30,15 +32,31 @@
 		return $provide;
 	};
 	
-	$provide.getPkg = function(req) {
-		// @TODO look at the requested module and scan for registered pkg definitions
-		// If none, use the default 'main/NULL' one. For now, just force that.
-		return $provide.pkgs['*'];
+	$provide.getPkg = function(req) {		
+		if ( $provide.pkgs[req] ) {
+			return $provide.pkgs[req];
+		} else return null;
 	};
 	
-	$provide.getScriptPath = function(module) {
-		// @TODO
-		return [$provide.getPkg(module), module].join("/") + ".js";
+	$provide.getScriptPath = function(_module) {
+		var path;
+		
+		if (_module.indexOf("/") == -1) path = $provide.pkgs['*'].load_path;
+		else {
+			var els  = _module.split("/");
+			var mod = els.pop();
+			var pkgstr = els.join("/");
+			if ($provide.getPkg(pkgstr)) {
+				path = $provide.getPkg(pkgstr).load_path;
+				_module = mod;
+			} else {
+				// use explicit
+				path = pkgstr;
+				_module = mod;
+			}
+		}
+		
+		return [path, _module].join("/") + ".js";
 	};
 
 	$provide.isReady = function(m) {
