@@ -31,6 +31,15 @@ Copyright (C) 2016 EvilTreeHouse.com. Free software: open/edit at will.
 			}
 		});
 		
+		var _statics = [];
+		_props.forEach((prop) => {
+			if (prop[0].toLowerCase() == 'extends') {
+				_super = prop[1];
+			} else if (prop[0].toUpperCase() == prop[0]) {
+				_statics.push(prop);
+			}
+		});
+		
 		if (! _constructor) {
 			_constructor = function() {};
 		}
@@ -40,21 +49,40 @@ Copyright (C) 2016 EvilTreeHouse.com. Free software: open/edit at will.
 		console.info('methods', _methods);
 		console.info('dynprops', _dynprops);
 		
-		_constructor.prototype = Object.create(_super && _super.prototype ? _super.prototype : null, _buildDefinition(_props, _dynprops) );
+		_constructor.prototype = Object.create(_super && _super.prototype ? _super.prototype : null, _buildDefinition(_statics, _dynprops) );
 		for (var mi in _methods) {
-			_constructor.prototype[_methods[mi]] = _methods[mi];
+			_constructor.prototype[_methods[mi].name] = _methods[mi];
 		}
 		
 		if (_super) {
-			_constructor.prototype['$supr'] = _super;
+			_constructor.prototype['$super'] = _super;
 		}
 		
 		$w[ className ] = _constructor;
 	}
 	
-	function _buildDefinition(props, dynprops) {
+	function _buildDefinition(statics, dynprops) {
 		var o = {};
+		statics.forEach((st) => {
+			o[st[0]] = { 'value': st[1], 'configurable': false }
+		});
 		
+		for (var pk in dynprops) {
+			var propdef = { 'readable': true, 'writable': true, 'configurable': false };
+			if (dynprops[pk].g) {
+				delete propdef.readable;
+				propdef['get'] = dynprops[pk].g;
+			}
+			if (dynprops[pk].s) {
+				delete propdef.writable;
+				propdef['set'] = dynprops[pk].s;
+			}
+			
+			o[pk] = propdef;
+		}
+		
+		//console.info('buildDef', o);
+		return o;
 	}
 	
 	function _methodType(m) {

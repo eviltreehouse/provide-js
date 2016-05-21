@@ -8,10 +8,10 @@
 </body>
 <script>
 	$refine('TestClass', [
-		[ 'THE THING', 1 ],
+		[ 'THE_THING', 1 ],
 		[ 'extends', Array ],
-		function thing$get() {},
-		function thing$set() {},
+		function thing$get() { return this._thing || "thing!!!"; },
+		function thing$set(v) { console.debug('making thing', v); this._thing = v; },
 		function genericMethod() {}
 	]);
 </script>
