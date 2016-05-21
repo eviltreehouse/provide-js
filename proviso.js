@@ -13,6 +13,7 @@ Copyright (C) 2016 EvilTreeHouse.com. Free software: open/edit at will.
 		var _props = [];
 		var _methods = [];
 		var _dynprops = {};
+		var _defs = [];
 		var _super    = null;
 		
 		dsl.forEach((def) => {
@@ -27,16 +28,18 @@ Copyright (C) 2016 EvilTreeHouse.com. Free software: open/edit at will.
 					_dynprops[deftype[1]][ deftype[0] ] = def;
 				}
 			} else if (typeof def == 'object') {
-				_props.push(def);
+				_defs.push(def);
 			}
 		});
 		
 		var _statics = [];
-		_props.forEach((prop) => {
-			if (prop[0].toLowerCase() == 'extends') {
-				_super = prop[1];
-			} else if (prop[0].toUpperCase() == prop[0]) {
-				_statics.push(prop);
+		_defs.forEach((def) => {
+			if (def[0].toLowerCase() == 'extends') {
+				_super = def[1];
+			} else if (def[0].match(/^\./)) {
+				_props.push(def);
+			} else if (def[0].toUpperCase() == def[0]) {
+				_statics.push(def);
 			}
 		});
 		
@@ -44,12 +47,12 @@ Copyright (C) 2016 EvilTreeHouse.com. Free software: open/edit at will.
 			_constructor = function() {};
 		}
 		
-		console.info('className', className);
-		console.info('props', _props);
-		console.info('methods', _methods);
-		console.info('dynprops', _dynprops);
+//		console.info('className', className);
+//		console.info('props', _props);
+//		console.info('methods', _methods);
+//		console.info('dynprops', _dynprops);
 		
-		_constructor.prototype = Object.create(_super && _super.prototype ? _super.prototype : null, _buildDefinition(_statics, _dynprops) );
+		_constructor.prototype = Object.create(_super && _super.prototype ? _super.prototype : null, _buildDefinition(_statics, _props, _dynprops) );
 		for (var mi in _methods) {
 			_constructor.prototype[_methods[mi].name] = _methods[mi];
 		}
@@ -61,14 +64,29 @@ Copyright (C) 2016 EvilTreeHouse.com. Free software: open/edit at will.
 		$w[ className ] = _constructor;
 	}
 	
-	function _buildDefinition(statics, dynprops) {
+	function _buildDefinition(statics, props, dynprops) {
 		var o = {};
 		statics.forEach((st) => {
 			o[st[0]] = { 'value': st[1], 'configurable': false }
 		});
 		
+		props.forEach((prop) => {
+			var propnm = prop[0]; propnm = propnm.replace(/^\./, '');
+			var def_val = prop.length == 3 ? prop[2] : undefined;
+			o[ propnm ] = { 'readable': false, 'writable': false, 'configurable': false, 'enumerable': propnm.match(/^_/) ? false : true };
+			if (def_val != undefined) o[propnm].value = def_val;
+			
+			if (prop[1].toLowerCase() == 'rw') {
+				o[propnm].readable = o[propnm].writable = true;	
+			} else if (prop[1].toLowerCase() == 'ro') {
+				o[propnm].readable = true;
+			} else if (prop[1].toLowerCase() == 'wo') {
+				o[propnm].writable = true;
+			}
+		});
+		
 		for (var pk in dynprops) {
-			var propdef = { 'readable': true, 'writable': true, 'configurable': false };
+			var propdef = { 'configurable': false };
 			if (dynprops[pk].g) {
 				delete propdef.readable;
 				propdef['get'] = dynprops[pk].g;
@@ -81,7 +99,7 @@ Copyright (C) 2016 EvilTreeHouse.com. Free software: open/edit at will.
 			o[pk] = propdef;
 		}
 		
-		//console.info('buildDef', o);
+		console.info('buildDef', o);
 		return o;
 	}
 	
@@ -124,7 +142,6 @@ function TheThing$get()
 function TheThing$set(v)
 [ CLASS_CONSTANT => permvanent_val ]
 [ 'extends' => SUPER ] => this.$super()
-
-
+[ '.property', 'rw', 'default_value' ]
 
 */

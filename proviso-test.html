@@ -10,6 +10,9 @@
 	$refine('TestClass', [
 		[ 'THE_THING', 1 ],
 		[ 'extends', Array ],
+		[ '.renderer', 'ro', null],
+		[ '.licenseKey', 'wo', null],
+		[ '._thing', 'rw', true],
 		function thing$get() { return this._thing || "thing!!!"; },
 		function thing$set(v) { console.debug('making thing', v); this._thing = v; },
 		function genericMethod() {}
