@@ -108,12 +108,12 @@ Copyright (C) 2016 EvilTreeHouse.com. Free software: open/edit at will.
 		var _qual = "";
 		
 		var nm = m.name;
-		if (nm.match(/\$get$/)) {
+		if (nm.match(/^\$/)) {
 			_typ = 'g';
-			_qual = nm.replace(/\$get$/, '');
-		} else if (nm.match(/\$set$/)) {
+			_qual = nm.replace(/^\$/, '');
+		} else if (nm.match(/\$$/)) {
 			_typ = 's';
-			_qual = nm.replace(/\$set$/, '');
+			_qual = nm.replace(/\$$/, '');
 		} else if (nm == '_') {
 			_typ = 'c';
 			_qual = null;
@@ -138,8 +138,8 @@ Copyright (C) 2016 EvilTreeHouse.com. Free software: open/edit at will.
 /* ==== SCRATCH ====
 
 function _() (constructor def)
-function TheThing$get()
-function TheThing$set(v)
+function $thing() [get]
+function thing$(v) [set]
 [ CLASS_CONSTANT => permvanent_val ]
 [ 'extends' => SUPER ] => this.$super()
 [ '.property', 'rw', 'default_value' ]
