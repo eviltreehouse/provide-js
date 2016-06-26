@@ -114,7 +114,7 @@ Copyright (C) 2016 EvilTreeHouse.com. Free software: open/edit at will.
 		} else if (nm.match(/\$$/)) {
 			_typ = 's';
 			_qual = nm.replace(/\$$/, '');
-		} else if (nm == '_') {
+		} else if (nm === '_' || nm === '') {
 			_typ = 'c';
 			_qual = null;
 		} else if (nm == nm.toUpperCase()) {
@@ -137,7 +137,7 @@ Copyright (C) 2016 EvilTreeHouse.com. Free software: open/edit at will.
 
 /* ==== SCRATCH ====
 
-function _() (constructor def)
+function _() || () (constructor def)
 function $thing() [get]
 function thing$(v) [set]
 [ CLASS_CONSTANT => permvanent_val ]
