@@ -7,7 +7,9 @@ Copyright (C) 2016 EvilTreeHouse.com. Free software: open/edit at will.
 */
 
 !function($w, As) {
-	
+	var DEBUG = true;
+    var VERSION = "0.5.0";
+    
 	function $proviso(className, dsl) {
 		var _constructor;
 		var _props = [];
@@ -15,6 +17,12 @@ Copyright (C) 2016 EvilTreeHouse.com. Free software: open/edit at will.
 		var _dynprops = {};
 		var _defs = [];
 		var _super    = null;
+        
+        if (arguments.length > 2) {
+            // DSL provided inline
+            dsl = Array.prototype.slice.call(arguments);
+            dsl.shift();
+        }
 		
 		dsl.forEach((def) => {
 			if (typeof def == 'function') {
@@ -99,7 +107,7 @@ Copyright (C) 2016 EvilTreeHouse.com. Free software: open/edit at will.
 			o[pk] = propdef;
 		}
 		
-		console.info('buildDef', o);
+		if (DEBUG) console.info('buildDef', o);
 		return o;
 	}
 	
@@ -130,7 +138,7 @@ Copyright (C) 2016 EvilTreeHouse.com. Free software: open/edit at will.
 		return ret;
 	}
 	
-	
+	$proviso.VERSION = VERSION;
 	$w[As] = $proviso;
 }(this, '$refine');
 
